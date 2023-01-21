@@ -32,7 +32,7 @@ globals:
   - id: food_detection_count_global
     type: int
     restore_value: no
-    initial_value: '0'
+    initial_value: '0' 
 
   - id: feeding_cycle_running_global
     type: int
