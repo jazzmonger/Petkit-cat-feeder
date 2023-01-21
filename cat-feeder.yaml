@@ -1,0 +1,155 @@
+#/usr/share/hassio/homeassistant/esphome$ esphome logs kitchen-ctrl-center.yaml
+# After motor starts
+#  if
+# count at least 3 detections 
+# else empty
+esphome:
+  name: cat-feeder
+
+esp8266:
+  board: d1_mini_lite
+# Enable logging
+
+logger:
+  logs:
+    sensor: ERROR
+# Enable Home Assistant API
+api:
+
+ota:
+  
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Cat-Feeder Fallback Hotspot"
+    password: "w4NEJmdIsly4"
+captive_portal:
+
+
+globals:
+  - id: food_detection_count_global
+    type: int
+    restore_value: no
+    initial_value: '0'
+
+  - id: feeding_cycle_running_global
+    type: int
+    initial_value: '0'
+
+sensor:
+  - platform: template
+    id: food_detection_count
+    name: Food Detection Count
+
+  - platform: template
+    id: feeding_cycle_running
+    name: Feeding Cycle Running
+
+  - platform: template
+    id: feed_detection
+  - platform: adc
+    pin: A0
+    id: food_detect  
+#    name: "Food Particle Detector"
+    update_interval: 0.3s
+    on_value:
+      then:
+        - if:                      
+            condition:
+              - binary_sensor.is_on: motor_sense # We're feeding
+#Adjust in case of crumbs.  Food in the way, detector rises to 1.0.  No food == 0
+              - lambda: |-
+                  if (id(food_detect).state >= 0.5) {
+                    return true;
+                  } else {
+                    return false;
+                  }              
+            then:           
+              - lambda: 'id(food_detection_count_global) += 1;'
+              - lambda: id(food_detection_count).publish_state(id(food_detection_count_global));              
+              - logger.log:
+                  format: "FOOD DETECTED!!!! food_detection_count (should increment)= %d"
+                  args: ['id(food_detection_count).state']
+              - logger.log:
+                  format: "FOOD DETECTED!!!! COUNT food_detection_count_global (should increment)= %d"
+                  args: ['id(food_detection_count_global)']                     
+        - if:
+            condition:
+              - binary_sensor.is_on: motor_sense # We're feeding               
+              - lambda: |-
+                  if (id(food_detection_count).state >= 2) {
+                    return true;
+                  } else {
+                    return false;
+                  }                   
+            then:   
+              - logger.log: "FEEDING OK - PLENTY OF FOOD DETECTED!!!!"   
+              - lambda: id(food_detection_count).publish_state(id(food_detection_count_global));       
+              - lambda: id(feeding_ok_flag).publish_state(true); #Set the state of a SENSOR 
+                                                     
+                
+binary_sensor:
+  - platform: template
+    id: cycle_running
+
+  - platform: template
+    id: feeding_ok_flag
+    name: Feeding ok flag
+
+  - platform: gpio
+    id: motor_sense
+    name: Motor Sense
+    filters:
+      - delayed_on: 1.5s #it pulses once before feeding.  unsure why.
+#      - delayed_off: 1s
+    pin:
+      number: D7
+      inverted: false
+      mode:
+        input: true
+        pullup: false
+    on_press:
+      then:
+        - if:
+            condition:
+              - binary_sensor.is_on: motor_sense # MOTOR is ON.  We're feeding
+            then:   
+              - logger.log: "**MOTOR ON BEGIN feeding ***"           
+              - globals.set:
+                  id: feeding_cycle_running_global 
+                  value: '1'     
+              - lambda: id(feeding_cycle_running).publish_state(id(feeding_cycle_running_global));        
+              - logger.log:
+                  format: "motor_sense.on_PRESS. FEEDING CYCLE RUNNING SENSOR (shoud be 1)= %f "
+                  args: ['id(feeding_cycle_running).state']
+
+    on_release:
+      then:
+        - logger.log: "***MOTOR NOT RUNNING -- END feeding***"
+        - if:
+            condition:
+              - lambda: |-
+                    if (id(food_detection_count).state <= 3) {
+                      return true;
+                    } else {
+                      return false;
+                    }                                   
+            then: 
+                - lambda: id(feeding_ok_flag).publish_state(0); # out of food
+                - logger.log: "FEEDING FAILED. OUT OF FOOD"  
+        - delay: 2s
+
+        - globals.set:
+            id: feeding_cycle_running_global
+            value: '0'    
+        - delay: 2s                      
+        - globals.set:
+            id: food_detection_count_global
+            value: '0'                            
+        - lambda: id(food_detection_count).publish_state(0); #Set the state of a SENSOR                     
+        - lambda: id(feeding_cycle_running).publish_state(id(feeding_cycle_running_global));                   
+        - logger.log:
+            format: "motor_sense.on_RELEASE. FEEDING CYCLE RUNNING SENSOR (should be 0) = %f"
+            args: ['id(feeding_cycle_running).state']            
