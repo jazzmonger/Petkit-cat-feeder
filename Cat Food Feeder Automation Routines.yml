@@ -1,0 +1,38 @@
+alias: Cat Food Feeder Routines
+description: ""
+trigger:
+  - platform: state
+    entity_id:
+      - binary_sensor.feeding_ok_flag
+    from: "on"
+    to: "off"
+  - platform: state
+    entity_id:
+      - binary_sensor.motor_sense
+    from: "off"
+    to: "on"
+condition: []
+action:
+  - if:
+      - condition: state
+        entity_id: binary_sensor.feeding_ok_flag
+        state: "off"
+    then:
+      - service: notify.mobile_app_jeffs_iphone_se
+        data:
+          message: Cat Food Empty.  Fill it!!
+      - service: notify.mobile_app_jeffs_128gb_ipad
+        data:
+          message: Cat Food Empty.  Fill it!!
+  - if:
+      - condition: state
+        entity_id: binary_sensor.motor_sense
+        state: "on"
+    then:
+      - service: notify.mobile_app_jeffs_iphone_se
+        data:
+          message: Cats are being fed!
+      - service: notify.mobile_app_jeffs_128gb_ipad
+        data:
+          message: Cats are being fed!
+mode: single
