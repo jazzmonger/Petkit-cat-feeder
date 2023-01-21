@@ -3,8 +3,8 @@ After massive frustation, I brute force fixed this pet feeder to work propertly.
 I bought thius one:
 https://www.amazon.com/gp/product/B09158J9PF/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&th=1
 
-it fails to correctly sense when its out of food
-often disonnects from the tuya servers,  
+- it fails to correctly sense when its out of food
+- often disonnects from the tuya servers,  
 
 Add a D1 mini and make it work.
 
@@ -16,3 +16,7 @@ Add a D1 mini and make it work.
 
 extend the wires on the 2 sensors and mount them on each side of the food bin.
 now when the food gets low, they can acually sense that RELIABLY ever time!
+
+I have a 3.3v zner diode asnd 1k resistor on the motor to give me a "HIGH" signal when the motor runs.
+
+If i was more patient, I would have added a wire to control the motor on/off.  then I could get rid of the Tuya cloud.  but im lazy and the petkit app makes it easy to program the food delivery, which works well.
