@@ -17,6 +17,7 @@ Add a D1 mini and make it work.
 extend the wires on the 2 sensors and mount them on each side of the food bin.
 now when the food gets low, they can acually sense that RELIABLY ever time!
 
+at first I tried to sense when the sbuzzer sounded but that proved ipossible... so now I just sense when the motor turns
 I have a 3.3v zner diode asnd 1k resistor on the motor to give me a "HIGH" signal when the motor runs.
 
 If i was more patient, I would have added a wire to control the motor on/off.  then I could get rid of the Tuya cloud.  but im lazy and the petkit app makes it easy to program the food delivery, which works well.
