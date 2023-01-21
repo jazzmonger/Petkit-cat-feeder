@@ -59,7 +59,7 @@ sensor:
         - if:                      
             condition:
               - binary_sensor.is_on: motor_sense # We're feeding
-#Adjust in case of crumbs.  Food in the way, detector rises to 1.0.  No food == 0
+# Food in the way, detector rises to 1.0v.  No food == 0.0v
               - lambda: |-
                   if (id(food_detect).state >= 0.5) {
                     return true;
