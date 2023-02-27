@@ -18,6 +18,10 @@ What to do? Add a D1 mini loaded with local ESPHome code and finally make it wor
 
 Remove and Extend the wires on the existing send/receive food sensors and then mount them on each side of the food bin by drilling (2) 1/4" holes opposite each other about 1" above the bottom of the food bin and hot glue them in place.  now when the food gets low, they can acually sense that there is no food between them RELIABLY, every single time!
 
+![47EDB970-2489-478A-9DF1-23DF3CC5832D](https://user-images.githubusercontent.com/52110065/221619516-9b7fd5d9-8d7e-4225-bef1-678daac77ab0.jpeg)
+![86DA7FFB-E39B-4360-A6FE-DFF0467371DC](https://user-images.githubusercontent.com/52110065/221619547-1854e50f-ab68-45b0-a795-64409591390a.jpeg)
+
+
 To trigger this sensor, At first I tried to sense when the buzzer sounded during feeding time using a pwm sensor routine, but that proved impossible... so now I just sense when the motor turns using a zener diode. Simple, reliable and consistent.
 
 I put a 3.3v Zener diode and 1k resistor (this converts the higher motor voltage to 3.3v) on the motor to give me a "HIGH" signal when the motor runs during feeding. This triggers the routine to sense if there is food in the bin. 
