@@ -50,16 +50,15 @@ sensor:
   - platform: template
     id: feed_detection
   - platform: adc
-    pin: A0
+    pin: A0 # connect this to the top of the petkit circuit board label "food det"
     id: food_detect  
-#    name: "Food Particle Detector"
     update_interval: 0.3s
     on_value:
       then:
         - if:                      
             condition:
               - binary_sensor.is_on: motor_sense # We're feeding
-# Food in the way, detector rises to 1.0v.  No food == 0.0v
+# if Food is in the way, the detector rises to 1.0v.  No food == 0.0v
               - lambda: |-
                   if (id(food_detect).state >= 0.5) {
                     return true;
@@ -105,7 +104,7 @@ binary_sensor:
       - delayed_on: 1.5s #it pulses once before feeding.  unsure why.
 #      - delayed_off: 1s
     pin:
-      number: D7
+      number: D7 #connect this to the union of the zener/resistor on the motor
       inverted: false
       mode:
         input: true
